@@ -6,7 +6,7 @@ TODO: Description
 
 ## Examples
 
-    $ json2xxx sample
+    $ cat somejson | json2xxx tsv
     #=> hoge
 
 ## Installation
