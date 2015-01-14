@@ -20,13 +20,17 @@ module Json2xxx
     end
 
     desc 'tsv', 'tsv'
+    class_option :force_quotes, type: :boolean, default: true, desc: 'write quote'
+    class_option :write_header, type: :boolean, default: true, desc: 'write header'
     def tsv
-      puts @core.convert_csv(@data, "\t")
+      puts @core.convert_csv(@data, "\t", options['force_quotes'], options['write_header'])
     end
 
     desc 'csv', 'csv'
+    class_option :force_quotes, type: :boolean, default: true, desc: 'write quote'
+    class_option :write_header, type: :boolean, default: true, desc: 'write header'
     def csv
-      puts @core.convert_csv(@data, ',')
+      puts @core.convert_csv(@data, ',', options['force_quotes'], options['write_header'])
     end
 
     desc 'yaml', 'yaml'

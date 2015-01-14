@@ -8,11 +8,11 @@ module Json2xxx
     def initialize
     end
 
-    def convert_csv(data, delimiter)
+    def convert_csv(data, delimiter, force_quotes, write_header)
       headers = data.first.keys
       csv = []
-      CSV.generate(col_sep: delimiter, force_quotes: true) do |csv|
-        csv << headers
+      CSV.generate(col_sep: delimiter, force_quotes: force_quotes) do |csv|
+        csv << headers if write_header
         data.each do |hash|
           csv << headers.map { |column_name| 
             get_json_value(hash[column_name]).gsub("\n", '')
