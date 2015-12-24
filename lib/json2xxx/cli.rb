@@ -7,16 +7,27 @@ module Json2xxx
   class CLI < Thor
 
     include Thor::Actions
-    class_option :fields, aliases: '-f', type: :array, desc: 'default is first data'  
+    class_option :fields, aliases: '-f', type: :array, desc: 'extract fields'
+    class_option :sort, aliases: '-s', type: :string, desc: 'sort'
     def initialize(args = [], options = {}, config = {})
       super(args, options, config)
       @global_options = config[:shell].base.options
       return unless File.pipe?(STDIN)
       @data = parse_json(STDIN.read)
       @core = Core.new
-      unless @global_options['fields'].nil?
+      if @global_options['fields']
         @data = @core.extract(@data, @global_options['fields'])
       end
+      if @global_options['sort']
+        @data = @core.sort(@data, @global_options['sort'])
+      end
+    end
+
+    desc 'delimiter', 'delimiter'
+    class_option :force_quotes, type: :boolean, default: true, desc: 'write quote'
+    class_option :write_header, type: :boolean, default: true, desc: 'write header'
+    def delimiter(delim)
+      puts @core.convert_csv(@data, delim, options['force_quotes'], options['write_header'])
     end
 
     desc 'tsv', 'tsv'
@@ -54,8 +65,9 @@ module Json2xxx
     end
 
     desc 'excel', 'excel'
+    option :output, aliases: '-o', type: :string, default: Time.now.strftime("%Y%m%d%H%M%S") + '.xls', desc: 'output file path.'  
     def excel
-      @core.convert_excel(@data)
+      @core.convert_excel(@data, options['output'])
     end
 
     private

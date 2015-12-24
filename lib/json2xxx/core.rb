@@ -1,6 +1,6 @@
-require 'spreadsheet'
 require 'csv'
 require 'tbpgr_utils'
+require 'set'
 
 module Json2xxx
   class Core
@@ -9,7 +9,7 @@ module Json2xxx
     end
 
     def convert_csv(data, delimiter, force_quotes, write_header)
-      headers = data.first.keys
+      headers = get_keys(data)
       csv = []
       CSV.generate(col_sep: delimiter, force_quotes: force_quotes) do |csv|
         csv << headers if write_header
@@ -22,7 +22,7 @@ module Json2xxx
     end
 
     def convert_markdown(data)
-      headers = data.first.keys
+      headers = get_keys(data)
       result = []
       header = '|' + headers.join('|') + '|' + "\n" + 
       				 '|' + headers.map { |_header| ':--' }.join('|') + '|'
@@ -36,7 +36,7 @@ module Json2xxx
     end
 
     def convert_backlog_wiki(data)
-      headers = data.first.keys
+      headers = get_keys(data)
       result = []
       result << '|~' + headers.join('|') + '|h'
 
@@ -49,9 +49,10 @@ module Json2xxx
       result.join("\n")
     end
 
-    def convert_excel(data)
-      filepath = Time.now.strftime("%Y%m%d%H%M%S") + '.xls'
-      headers = data.first.keys
+    def convert_excel(data, filepath = Time.now.strftime("%Y%m%d%H%M%S") + '.xls')
+      require 'spreadsheet'
+      headers = get_keys(data)
+
       basename = File.basename(filepath, '.*')
       Spreadsheet.client_encoding = 'UTF-8'
       workbook = Spreadsheet::Workbook.new
@@ -74,7 +75,7 @@ module Json2xxx
     end
 
     def convert_html(data)
-      headers = data.first.keys
+      headers = get_keys(data)
       result = []
       result << headers
       data.each do |hash|
@@ -86,14 +87,26 @@ module Json2xxx
       result.to_html_table
     end
 
-    def extract(data, fields)
+    def extract(data, fields, sort_column)
       data.map { |record|
         record = Hashie::Mash.new(record)
         fields.inject({}) { |result, field| 
-          result[field] = eval("record.#{field}") 
+          eval_string = field[0] == "[" ? "record#{field}" : "record.#{field}"
+          result[field] = eval(eval_string)
           result
         }
       }
+    end
+
+    def sort(data, sort_column)
+      data.sort_by{ |record|
+        record[sort_column]
+      }
+    end
+
+    def get_keys(data)
+      keys = data.inject(Set.new) {|set, record| set.merge(record.keys) }
+      keys.to_a
     end
 
     def get_json_value(value)
