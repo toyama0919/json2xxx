@@ -21,6 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'spreadsheet'
   gem.add_dependency 'tbpgr_utils'
   gem.add_dependency 'hashie'
+  gem.add_dependency 'awesome_print'
 
   gem.add_development_dependency 'bundler', '~> 1.7.2'
   gem.add_development_dependency 'pry', '~> 0.10.1'

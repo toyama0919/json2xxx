@@ -87,7 +87,7 @@ module Json2xxx
       result.to_html_table
     end
 
-    def extract(data, fields, sort_column)
+    def extract(data, fields)
       data.map { |record|
         record = Hashie::Mash.new(record)
         fields.inject({}) { |result, field| 

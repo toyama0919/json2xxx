@@ -2,6 +2,8 @@ require "thor"
 require "json"
 require 'yaml'
 require 'hashie'
+require 'pp'
+require 'awesome_print'
 
 module Json2xxx
   class CLI < Thor
@@ -64,6 +66,11 @@ module Json2xxx
       puts @core.convert_html(@data)
     end
 
+    desc 'hash', 'hash'
+    def hash
+      ap @data, indent: 2, index: false
+    end
+
     desc 'excel', 'excel'
     option :output, aliases: '-o', type: :string, default: Time.now.strftime("%Y%m%d%H%M%S") + '.xls', desc: 'output file path.'  
     def excel
@@ -74,6 +81,7 @@ module Json2xxx
 
     def parse_json(buffer)
       begin
+        buffer = buffer.uncolorize
         data = JSON.parse(buffer)
       rescue => e
         data = []
