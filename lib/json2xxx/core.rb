@@ -1,6 +1,11 @@
 require 'csv'
 require 'tbpgr_utils'
 require 'set'
+require 'hashie'
+
+class HashWrapper < ::Hashie::Mash
+  disable_warnings if respond_to?(:disable_warnings)
+end
 
 module Json2xxx
   class Core
@@ -89,7 +94,7 @@ module Json2xxx
 
     def extract(data, fields)
       data.map { |record|
-        record = Hashie::Mash.new(record)
+        record = HashWrapper.new(record)
         fields.inject({}) { |result, field| 
           eval_string = field[0] == "[" ? "record#{field}" : "record.#{field}"
           result[field] = eval(eval_string)
@@ -111,7 +116,7 @@ module Json2xxx
 
     def get_json_value(value)
       return '' if value.nil? 
-      return value.to_json if value.class == Array || value.class == Hash || value.class == Hashie::Mash
+      return value.to_json if value.class == Array || value.class == Hash || value.class == HashWrapper
       return value.to_s
     end
   end

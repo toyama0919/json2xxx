@@ -1,7 +1,6 @@
 require "thor"
 require "json"
 require 'yaml'
-require 'hashie'
 require 'pp'
 require 'awesome_print'
 
